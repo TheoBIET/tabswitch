@@ -19,6 +19,7 @@
     "migrate:deploy": "prisma migrate deploy",
     "migrate:reset": "prisma migrate reset",
     "studio": "prisma studio",
+    "seed:sentences": "node prisma/seed-sentences.mjs",
     "lint": "echo skip"
   },
   "dependencies": {
