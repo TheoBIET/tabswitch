@@ -2,6 +2,10 @@
 
 import type { LobbySnapshot } from '@tabswitch/types';
 import type { PlateauClientView } from '@tabswitch/plateau';
+import { DiceRoller } from './DiceRoller';
+import { VoteOverlay } from './overlays/VoteOverlay';
+import { SwapOverlay } from './overlays/SwapOverlay';
+import { MinigameOverlay } from './overlays/MinigameOverlay';
 
 const CELL_COLOR: Record<string, string> = {
   start: '#22c55e',
@@ -24,15 +28,32 @@ export function PlateauGame({ snapshot }: { snapshot: LobbySnapshot }) {
     return <GameOverScreen view={view} />;
   }
 
+  const myDice = view.turn.dice[view.you.playerId];
+  const canRoll = view.phase === 'ROLLING' && myDice === undefined;
+
   return (
-    <div className="flex flex-col gap-4 lg:flex-row">
-      <div className="flex-1">
-        <PlateauBoard view={view} />
+    <>
+      {view.phase === 'VOTE' && <VoteOverlay view={view} />}
+      {view.phase === 'SWAP' && <SwapOverlay view={view} />}
+      {(view.phase === 'MINIGAME_EVENT' || view.phase === 'MINIGAME_END_OF_TURN') && (
+        <MinigameOverlay view={view} snapshot={snapshot} />
+      )}
+
+      <div className="flex flex-col gap-4 lg:flex-row">
+        <div className="flex-1">
+          <PlateauBoard view={view} />
+        </div>
+        <div className="flex w-full flex-col gap-3 lg:w-64">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+            <p className="mb-2 text-xs uppercase tracking-wider text-[color:var(--color-fg-muted)]">
+              {view.phase === 'ROLLING' ? 'Lancez les dés !' : `Phase : ${view.phase}`}
+            </p>
+            <DiceRoller canRoll={canRoll} result={myDice} />
+          </div>
+          <PlateauSidebar view={view} />
+        </div>
       </div>
-      <div className="w-full lg:w-64">
-        <PlateauSidebar view={view} />
-      </div>
-    </div>
+    </>
   );
 }
 
