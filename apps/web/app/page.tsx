@@ -68,7 +68,7 @@ export default async function HubLanding() {
     | { id?: string; nickname?: string | null; email?: string | null }
     | undefined;
 
-  let me: { slug: string; nickname: string } | null = null;
+  let me: { slug: string; nickname: string; avatar: string | null } | null = null;
   let recent: Array<{
     id: string;
     gameType: string;
@@ -84,7 +84,11 @@ export default async function HubLanding() {
       const [profile, last3, wins] = await Promise.all([
         db.user.findUnique({
           where: { id: user.id },
-          select: { slug: true, nickname: true },
+          select: {
+            slug: true,
+            nickname: true,
+            settings: { select: { avatar: true } },
+          },
         }),
         db.gameSession.findMany({
           where: { userId: user.id },
@@ -94,7 +98,11 @@ export default async function HubLanding() {
         db.gameSession.count({ where: { userId: user.id, outcome: 'won' } }),
       ]);
       if (profile?.slug && profile.nickname) {
-        me = { slug: profile.slug, nickname: profile.nickname };
+        me = {
+          slug: profile.slug,
+          nickname: profile.nickname,
+          avatar: profile.settings?.avatar ?? null,
+        };
       }
       recent = last3;
       totalWins = wins;
@@ -241,7 +249,7 @@ function MeStrip({
   totalWins,
   recent,
 }: {
-  me: { slug: string; nickname: string };
+  me: { slug: string; nickname: string; avatar: string | null };
   totalWins: number;
   recent: Array<{
     id: string;
@@ -255,7 +263,7 @@ function MeStrip({
     <section className="flex h-full flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5">
       <div className="flex flex-wrap items-center gap-4">
         <Link href={`/profile/${me.slug}`} className="flex items-center gap-3">
-          <Avatar seed={me.slug} size={40} />
+          <Avatar seed={me.slug} src={me.avatar} size={40} />
           <div>
             <div className="text-sm">
               Salut <strong>{me.nickname}</strong>
