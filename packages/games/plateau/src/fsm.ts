@@ -15,9 +15,9 @@ export function buildInitialState(
 ): PlateauState {
   const cellMap = new Map(board.map((c) => [c.id, c]));
   const initialPlayers = players.map((p) => ({
-    skipsNextTurn: false,
-    arrivedAt: null,
     ...p,
+    skipsNextTurn: p.skipsNextTurn ?? false,
+    arrivedAt: p.arrivedAt ?? null,
   }));
 
   return {
@@ -205,7 +205,7 @@ export function resolveVote(state: PlateauState): PlateauState {
   const chosen = winners[Math.floor(Math.random() * winners.length)]!;
 
   const log = [...state.eventLog, `Vote : ${chosen} pour ${target.nickname}`];
-  let newState = { ...state, pendingEvent: null, eventLog: log.slice(-5) };
+  let newState: PlateauState = { ...state, pendingEvent: null, eventLog: log.slice(-5) };
 
   if (chosen === 'reculer') {
     if (target.protected) {
