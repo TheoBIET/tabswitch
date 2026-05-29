@@ -1,6 +1,7 @@
 import type { GameDefinition } from '@tabswitch/types';
 import { connect4Definition } from '@tabswitch/connect4';
 import { gifBattleDefinition } from '@tabswitch/gif-battle';
+import { plateauDefinition } from '@tabswitch/plateau';
 import { rpsDefinition } from '@tabswitch/rps';
 import { ticTacToeDefinition } from '@tabswitch/tictactoe';
 
@@ -15,6 +16,7 @@ const ALL_GAMES: readonly GameDefinition[] = [
   ticTacToeDefinition,
   connect4Definition,
   rpsDefinition,
+  plateauDefinition,
 ];
 
 const byType = new Map<string, GameDefinition>(ALL_GAMES.map((g) => [g.gameType, g]));
