@@ -3,6 +3,7 @@ import { env } from './env.js';
 import { log } from './log.js';
 import { createIo } from './io.js';
 import { listGameDefinitions } from './games/registry.js';
+import { wireGifBattlePhrases } from './games/gif-battle-phrases.js';
 
 async function main(): Promise<void> {
   const httpServer = http.createServer((req, res) => {
@@ -39,6 +40,7 @@ async function main(): Promise<void> {
     res.end('Not Found');
   });
 
+  wireGifBattlePhrases();
   createIo(httpServer);
 
   httpServer.listen(env.PORT, () => {
