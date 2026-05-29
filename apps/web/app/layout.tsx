@@ -9,7 +9,7 @@ import { ThemeSync } from '@/components/hub/ThemeSync';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'TabSwitch — Hub de mini-jeux multijoueur',
+  title: 'TabSwitch',
   description:
     "Un hub open source de mini-jeux multijoueur. GIF Battle, Tic-Tac-Toe et plus. Architecture room-based, contributeur-friendly.",
   metadataBase: new URL('https://tabswitch.fun'),
