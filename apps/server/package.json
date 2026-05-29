@@ -1,0 +1,38 @@
+{
+  "name": "@tabswitch/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "echo 'no build step — tsx runs TS source directly'",
+    "start": "tsx src/server.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "lint": "echo skip"
+  },
+  "dependencies": {
+    "@tabswitch/connect4": "workspace:*",
+    "@tabswitch/db": "workspace:*",
+    "@tabswitch/gif-battle": "workspace:*",
+    "@tabswitch/rps": "workspace:*",
+    "@tabswitch/tictactoe": "workspace:*",
+    "@tabswitch/types": "workspace:*",
+    "@socket.io/redis-adapter": "^8.3.0",
+    "cookie": "^1.0.2",
+    "jose": "^5.9.6",
+    "pino": "^9.5.0",
+    "pino-pretty": "^13.0.0",
+    "redis": "^4.7.0",
+    "socket.io": "^4.8.1",
+    "tsx": "^4.19.2",
+    "ulid": "^2.3.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@tabswitch/config": "workspace:*",
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  }
+}

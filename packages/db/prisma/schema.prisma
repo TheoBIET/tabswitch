@@ -1,0 +1,155 @@
+// TabSwitch DB schema. Auth.js (NextAuth v5) compatible tables + app tables.
+// To apply: `pnpm push` for dev, `pnpm migrate:dev` for migrations.
+// DB connection (DATABASE_URL) is configured in prisma.config.ts, not here.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../dist"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============ NextAuth (Auth.js v5) tables ============
+// Reference: https://authjs.dev/getting-started/adapters/prisma
+
+model User {
+  id            String    @id @default(uuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  nickname      String?   @unique @db.VarChar(24)
+  slug          String?   @unique @db.VarChar(32)
+  createdAt     DateTime  @default(now())
+
+  accounts     Account[]
+  sessions     Session[]
+  ideas        Idea[]
+  votes        IdeaVote[]
+  gameSessions GameSession[]
+  follows      Follow[]   @relation("Follower")
+  followers    Follow[]   @relation("Following")
+
+  @@map("users")
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  sessionToken String   @id
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+  @@map("verificationTokens")
+}
+
+// ============ App tables ============
+
+enum IdeaStatus {
+  open
+  planned
+  building
+  shipped
+  closed
+}
+
+model Idea {
+  id        String     @id @default(uuid()) @db.Uuid
+  authorId  String
+  title     String     @db.VarChar(120)
+  body      String
+  /// Lowercased title for dedup detection.
+  slug      String     @db.VarChar(140)
+  status    IdeaStatus @default(open)
+  voteCount Int        @default(0)
+  hidden    Boolean    @default(false)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  author User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  votes  IdeaVote[]
+
+  @@unique([authorId, slug], map: "ideas_author_slug_uniq")
+  @@index([createdAt(sort: Desc)], map: "ideas_created_idx")
+  @@index([voteCount(sort: Desc)], map: "ideas_votes_idx")
+  @@index([status], map: "ideas_status_idx")
+  @@map("ideas")
+}
+
+model IdeaVote {
+  ideaId    String   @db.Uuid
+  userId    String
+  createdAt DateTime @default(now())
+
+  idea Idea @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([ideaId, userId])
+  @@map("idea_votes")
+}
+
+// ============ App tables (additions for profile + social) ============
+
+enum GameOutcome {
+  won
+  lost
+  draw
+}
+
+model GameSession {
+  id       String      @id @default(uuid()) @db.Uuid
+  userId   String
+  gameType String
+  roomCode String
+  outcome  GameOutcome
+  playedAt DateTime    @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, playedAt(sort: Desc)], map: "game_sessions_user_played_idx")
+  @@index([userId, gameType, outcome],    map: "game_sessions_wins_idx")
+  @@map("game_sessions")
+}
+
+model Follow {
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("Follower",  fields: [followerId],  references: [id], onDelete: Cascade)
+  following User @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@id([followerId, followingId])
+  @@index([followingId], map: "follows_following_idx")
+  @@map("follows")
+}

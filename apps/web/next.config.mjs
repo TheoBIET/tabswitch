@@ -1,0 +1,58 @@
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  transpilePackages: [
+    '@tabswitch/connect4',
+    '@tabswitch/db',
+    '@tabswitch/gif-battle',
+    '@tabswitch/rps',
+    '@tabswitch/tictactoe',
+    '@tabswitch/types',
+    '@tabswitch/ui',
+  ],
+  // Prisma 7 client + pg driver adapter run server-side only; keep them
+  // external so the generated client and pg's dynamic requires aren't bundled.
+  serverExternalPackages: [
+    '@prisma/client',
+    '@prisma/adapter-pg',
+    '@prisma/client-runtime-utils',
+    'pg',
+  ],
+  images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: 'media.giphy.com' },
+      { protocol: 'https', hostname: 'media0.giphy.com' },
+      { protocol: 'https', hostname: 'media1.giphy.com' },
+      { protocol: 'https', hostname: 'media2.giphy.com' },
+      { protocol: 'https', hostname: 'media3.giphy.com' },
+      { protocol: 'https', hostname: 'media4.giphy.com' },
+      { protocol: 'https', hostname: 'i.giphy.com' },
+      { protocol: 'https', hostname: 'media.tenor.com' },
+      { protocol: 'https', hostname: 'media1.tenor.com' },
+      { protocol: 'https', hostname: 'media2.tenor.com' },
+      { protocol: 'https', hostname: 'c.tenor.com' },
+    ],
+  },
+  webpack: (config) => {
+    // Resolve .js imports to .ts in workspace packages (NodeNext-style).
+    config.resolve.extensionAlias = {
+      ...(config.resolve.extensionAlias ?? {}),
+      '.js': ['.ts', '.tsx', '.js'],
+    };
+    return config;
+  },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+        ],
+      },
+    ];
+  },
+};
+
+export default nextConfig;

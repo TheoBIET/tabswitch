@@ -1,0 +1,9 @@
+{
+  "extends": "@tabswitch/config/tsconfig/react.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "noEmit": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["dist", "node_modules"]
+}
