@@ -39,6 +39,7 @@ export function useGifBattleEvents(roundNumber: number | undefined): GifBattleLi
   useEffect(() => {
     const socket = getSocket();
     let counter = 0;
+    const reactionTimers = new Set<ReturnType<typeof setTimeout>>();
     const offResults = onGameEvent<RoundResultsPayload>(
       socket,
       GIF_BATTLE_SERVER_EVENTS.RoundResults,
@@ -55,13 +56,18 @@ export function useGifBattleEvents(roundNumber: number | undefined): GifBattleLi
       (p) => {
         const id = counter++;
         setReactions((rs) => [...rs, { id, submissionId: p.submissionId, emoji: p.emoji }]);
-        setTimeout(() => setReactions((rs) => rs.filter((r) => r.id !== id)), 1500);
+        const tid = setTimeout(() => {
+          reactionTimers.delete(tid);
+          setReactions((rs) => rs.filter((r) => r.id !== id));
+        }, 1500);
+        reactionTimers.add(tid);
       },
     );
     return () => {
       offResults();
       offEnded();
       offReaction();
+      reactionTimers.forEach(clearTimeout);
     };
   }, []);
 
