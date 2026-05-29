@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { GIF_BATTLE_EVENTS, type GifBattleClientView } from '@tabswitch/gif-battle';
-import { Button } from '@/components/ui/Button';
 import { gameAction, getSocket } from '@/lib/socket';
 
 interface GifResult {
